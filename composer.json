@@ -1,0 +1,24 @@
+{
+    "name": "hnrazevedo/orm",
+    "description": "ORM is a simple persistence abstraction component in the database.",
+    "authors": [
+        {
+            "name": "Henri Mateus Santos de Azevedo",
+            "email": "hnr.azevedo@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "ext-pdo": "*"
+    },
+    "minimum-stability":"dev",
+    "license":"MIT",
+    "autoload": {
+        "psr-4": {
+            "HnrAzevedo\\ORM\\":"src/",
+            "HnrAzevedo\\ORM\\Attributes\\":"src/attributes/",
+            "HnrAzevedo\\ORM\\Traits\\":"src/attributes/Traits/"
+        }
+    }
+}

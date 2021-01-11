@@ -34,7 +34,7 @@ class User extends Model
     {
         parent::__construct();
 
-        var_dump($this->entity);
+        //var_dump($this->entity);
     }
 
     public function __set(string $field, $value)

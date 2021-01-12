@@ -3,44 +3,26 @@
 namespace HnrAzevedo\ORM\Traits;
 
 use HnrAzevedo\ORM\ORMException;
+use HnrAzevedo\ORM\Prepare;
 use HnrAzevedo\ORM\Validation;
+use HnrAzevedo\ORM\CRUD;
 
 trait Encapsulation
 {
     public function persist(): self
     {
         Validation::handle($this);
-        die();
-
-        $columns = '';
-        $values = '';
-        $data = [];
-
-        foreach ($this->data as $key => $value) {
-            if(strstr($this->data[$key]['extra'], 'auto_increment')){
-                continue;
-            }
-
-            $this->checkMaxlength($key, $value['value'], $value['maxlength']);
-
-            $columns .= $key.',';
-            $values .= ':'.$key.',';
-            $data[$key] = $value['value'];
-        }
-
-        $this->transaction('begin');
+        $manager = new CRUD();
+        $manager->transaction('begin');
         try{
-            $this->checkUniques($data);
-            $id = $this->insert($data);
-            $this->check_fail();
-            $primary = $this->primary;
-            $this->$primary = $id;
-            $this->transaction('commit');
+            $key = $manager->insert((new Prepare($this))->save(), $this->entity->getTable());
+            $primaryKey = $this->entity->getPrimaryKey()->getName();
+            $this->$primaryKey = ($key);
+            $manager->transaction('commit');
         }catch(ORMException $er){
-            $this->transaction('rollback');
+            $manager->transaction('rollback');
             throw $er;
         }
-
         return $this;
     }
 

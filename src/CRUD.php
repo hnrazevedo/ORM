@@ -1,12 +1,11 @@
 <?php
 
-namespace HnrAzevedo\ORM\Traits;
+namespace HnrAzevedo\ORM;
 
-use HnrAzevedo\ORM\ORMException;
-use HnrAzevedo\ORM\Connection;
+use HnrAzevedo\ORM\Traits\Checking;
 use PDO;
 
-trait Crud
+class CRUD
 {
     use Checking;
 
@@ -14,30 +13,38 @@ trait Crud
     protected string $lastQuery = '';
     protected array $lastData = [];
 
-    protected function failed(): void
+    public function transaction(string $t): bool
     {
-        if(!is_null($this->fail)){
-            throw $this->fail;
-        }
-    }
-
-    protected function transaction(string $transaction): bool
-    {
-        if(array_key_exists($transaction, ['begin', 'commit', 'rollback'])){
-            throw new ORMException("{$transaction} " . self::$ORM_LANG['notTransaction']);
+        if(array_key_exists(strtolower($t), ['begin', 'commit', 'rollback'])){
+            throw new ORMException("{$t} " . self::$ORM_LANG['notTransaction']);
         }
 
-        if(!Connection::getInstance()->inTransaction()){
-           return Connection::getInstance()->beginTransaction();
-        }
-
-        switch ($transaction) {
+        switch(strtolower($t)){
+            case 'begin': return Connection::getInstance()->beginTransaction();
             case 'commit': return Connection::getInstance()->commit();
             default: return Connection::getInstance()->rollBack();
         }
     }
 
-    protected function select(string $query, array $data): ?array
+    public function insert(array $data, string $table): ?int
+    {
+        try {
+            $columns = implode(", ", array_keys($data));
+            $values = ":" . implode(", :", array_keys($data));
+
+            $this->query = "INSERT INTO {$table} ({$columns}) VALUES ({$values})";
+            $this->data = $data;
+
+            $stmt = Connection::getInstance()->prepare($this->query);
+            $stmt->execute($this->data);
+
+            return intval(Connection::getInstance()->lastInsertId());
+        } catch (\Exception $e) {
+            throw new ORMException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    public function select(string $query, array $data): ?array
     {
         try{
             $stmt = Connection::getInstance()->prepare("{$query}");
@@ -53,30 +60,9 @@ trait Crud
         return [];
     }
 
-    protected function insert(array $data): string
-    {
-        try {
-            $columns = implode(", ", array_keys($data));
-            $values = ":" . implode(", :", array_keys($data));
+    
 
-            $stmt = Connection::getInstance()->prepare("INSERT INTO {$this->table} ({$columns}) VALUES ({$values})");
-
-            $this->checkNull($data);
-            $dataInsert = $this->filter($data);
-
-            $this->lastQuery = "INSERT INTO {$this->table} ({$columns}) VALUES ({$values})";
-            $this->lastData = $dataInsert;
-
-            $stmt->execute($dataInsert);
-
-            return Connection::getInstance()->lastInsertId();
-        } catch (\Exception $exception) {
-            $this->fail = new ORMException($exception->getMessage(), $exception->getCode(), $exception);
-        }
-        return '';
-    }
-
-    protected function update(array $data, string $terms, string $params): bool
+    public function update(array $data, string $terms, string $params): bool
     {
         try {
             $dateSet = [];
@@ -87,7 +73,7 @@ trait Crud
 
             parse_str($params, $arr);
 
-            $dataUpdate = $this->filter(array_merge($data, $arr));
+            //$dataUpdate = $this->filter(array_merge($data, $arr));
 
             $stmt = Connection::getInstance()->prepare("UPDATE {$this->table} SET {$dateSet} WHERE {$terms}");
 
@@ -131,13 +117,11 @@ trait Crud
         return false;
     }
 
-    private function filter(array $data): array
+    public function failed(): void
     {
-        $filter = [];
-        foreach ($data as $key => $value) {
-            $filter[$key] = (is_null($value) ? null : filter_var($value, FILTER_DEFAULT));
+        if(!is_null($this->fail)){
+            throw $this->fail;
         }
-        return $filter;
     }
 
 }

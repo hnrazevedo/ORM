@@ -23,7 +23,7 @@ class Model extends ORM
     public function __get(string $field)
     {
         if(!property_exists($this, $field)){
-            throw new ORMException("{$field} not defined in " . $this::class);
+            throw new ORMException($field . ' not defined in ' . get_class($this));
         }
         return (isset($this->$field)) ? $this->$field : null;
     }

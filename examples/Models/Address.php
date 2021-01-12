@@ -13,7 +13,7 @@ class Address extends Model
     #[Column(name: 'id', type: 'bigint', primaryKey: true, autoIncrement: true)]
     protected int $id;
 
-    #[Validate(regex: '[0-9]{5}\-[0-9]{3}')]
+    #[Validate(regex: '[0-9]{8}')]
     #[Column(name: 'code', type: 'bigint')]
     protected string $code;
 

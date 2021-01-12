@@ -1,6 +1,6 @@
 <?php
 
-define("DATAMANAGER_CONFIG", [
+define("ORM_CONFIG", [
     "driver" => "mysql",
     "host" => "localhost",
     "charset" => "utf8",

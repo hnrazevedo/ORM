@@ -1,16 +1,22 @@
 <?php
 
-namespace HnrAzevedo\ORM\Traits;
+namespace HnrAzevedo\ORM;
 
-trait Debug
+class Debug
 {
-    protected string $lastQuery = '';
-    protected array $lastData = [];
+    public function __construct(
+        private string $query = '',
+        private array $data = []
+    )
+    {}
 
     public function handle(bool $array = false): string|array
     {
         if($array){
-            return ['query' => $this->lastQuery, 'data' => $this->lastData];
+            return [
+                'query' => $this->lastQuery, 
+                'data' => $this->lastData
+            ];
         }
         
         $query = $this->lastQuery;
@@ -21,5 +27,4 @@ trait Debug
 
         return $query;
     }    
-
 }

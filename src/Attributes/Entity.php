@@ -28,6 +28,11 @@ class Entity
         return $this->propertys[$name][$attribute];
     }
 
+    public function getPropertys(): array
+    {
+        return $this->propertys;
+    }
+
     
 
 }

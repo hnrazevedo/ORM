@@ -14,19 +14,18 @@ trait Operations
         return $this;
     }
 
-    public function remove(?int $key = null): self
+    public function delete(?int $key = null): self
     {
         return $this;
     }
 
-    public function removeById(int $key): self
+    public function deleteById(int $key): self
     {
         return $this;
     }
 
     public function except(string|array $excepts): self
     {
-        var_dump($excepts);
         return $this;
     }
 

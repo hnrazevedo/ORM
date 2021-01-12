@@ -9,4 +9,4 @@ $user = new User();
 
 $user->name = 'teste';
 
-$user->find();
+$user->persist();

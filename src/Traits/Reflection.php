@@ -31,8 +31,7 @@ trait Reflection
     {
         $properties = $rom->getProperties();
         foreach ($properties as $property) {
-            
-
+        
             foreach ($property->getAttributes() as $attribute) {
                 if('HnrAzevedo\ORM\Attributes' !== (new \ReflectionClass($attribute->newInstance()::class))->getNamespaceName()){
                     continue;
@@ -40,9 +39,13 @@ trait Reflection
 
                 $attr = $attribute->newInstance();
 
-                $this->entity->setProperty($property->getName(), $attribute->getName(), $attr->setName(
-                    $attr->getName() ?: $property->getName()
-                ));
+                $this->entity->setProperty(
+                    $property->getName(),
+                    basename($attribute->getName()), 
+                    ('Column' === basename($attribute->newInstance()::class))
+                        ? $attr->setName($attr->getName() ?: $property->getName())
+                        : $attr
+                );
 
             }
          }

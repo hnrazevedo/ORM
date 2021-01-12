@@ -33,6 +33,24 @@ class Entity
         return $this->propertys;
     }
 
-    
+    public function hasPrimaryKey(): bool
+    {
+        foreach($this->getPropertys() as $property){
+            if($property['Column']->isPrimaryKey()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getPrimaryKey(): ?Column
+    {
+        foreach($this->getPropertys() as $property){
+            if($property['Column']->isPrimaryKey()){
+                return $property['Column'];
+            }
+        }
+        return null;
+    }
 
 }

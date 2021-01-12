@@ -16,6 +16,7 @@ class Column
         private ?string $default = null,
         private bool $primaryKey = false,
         private bool $foreignKey = false,
+        private ?string $foreignEntity = null,
         private bool $autoIncrement = false
     )
     {}
@@ -64,6 +65,11 @@ class Column
     public function isForeignKey(): bool
     {
         return $this->foreignKey;
+    }
+
+    public function isAutoIncrement(): bool
+    {
+        return $this->autoIncrement;
     }
 
 }

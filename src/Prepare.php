@@ -25,16 +25,16 @@ class Prepare
         $data = [];
         foreach($this->model->entity->getPropertys() as $p => $property){
             $value = $this->model->$p;
+            
             if($property['Column']->isForeignKey()){
-
                 $key = $this->model->$p->entity->getPrimaryKey()->getName();
-                $value = $this->model->$p->$key;
-
-                $value = (null === $value) ? (new CRUD())->insert((new self($this->model->$p))->save(), $this->model->$p->entity->getTable()) : $value;
+                $value = (null === $this->model->$p->$key) ? (new CRUD())->insert((new self($this->model->$p))->save(), $this->model->$p->entity->getTable()) : $this->model->$p->$key;
             }
+
             if(null === $value){
                 continue;
             }
+
             $data[$property['Column']->getName()] = $value;
         }
         return $this->filter($data);

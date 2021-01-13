@@ -11,7 +11,6 @@ trait Encapsulation
 {
     public function persist(): self
     {
-        Validation::handle($this);
         $manager = new CRUD();
         $manager->transaction('begin');
         try{

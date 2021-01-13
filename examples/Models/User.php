@@ -18,8 +18,8 @@ class User extends Model
     #[Column(name: 'name', type: 'varchar')]
     protected string $name;
 
-    #[Validate(max: 50)]
-    #[Column(name: 'password', type: 'varchar', length: 50)]
+    #[Validate(max: 60)]
+    #[Column(name: 'password', type: 'varchar', length: 60)]
     protected string $password;
 
     #[Validate(regex: "[0-9]{4}\-[0-9]{2}\-[0-9]{2}")]

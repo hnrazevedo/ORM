@@ -43,9 +43,9 @@ class Validation
     {
         $key = $value->entity->getPrimaryKey()->getName();
 
-        if(!$property && null === $value->$key){
-            throw new ORMException($key . ' in ' . $value::class . ' cannot be null');
-        }
+        //if(!$property && null === $value->$key){
+        //    throw new ORMException($key . ' in ' . $value::class . ' cannot be null');
+        //}
         
         $this->handle($value);
     }

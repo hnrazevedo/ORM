@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS user(
     id BIGINT(11) AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(60) NOT NULL,
     birth DATE NOT NULL,
     register DATETIME NOT NULL,
     address BIGINT(11) NOT NULL,

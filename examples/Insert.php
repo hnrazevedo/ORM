@@ -3,30 +3,30 @@
 require __DIR__.'/../vendor/autoload.php';
 require __DIR__.'/config.php';
 require __DIR__.'/Models/User.php';
-
-/* NOTE: in case of error an exception is thrown */
-
-/* It is necessary to set a value in all fields that cannot be null, otherwise a DatamanagerException will be thrown */
-
-use HnrAzevedo\Datamanager\DatamanagerException;
-use Model\User;
+require __DIR__.'/Models/Address.php';
 
 try{
-    $entity = new User();
 
-    /* Set new info for insert in database */
-    $entity->name = 'Henri Azevedo';
-    $entity->email = 'hnr.azevedo@gmail.com';
-    $entity->password = password_hash('123456', PASSWORD_DEFAULT);
-    $entity->birth = '28/09/1996';
-    $entity->register = date('Y-m-d H:i:s');
-    $entity->weight = floatval('70.50');
+    $user = new Model\User();
+    $user->name = 'Henri Azevedo';
+    $user->password = password_hash('12345678', PASSWORD_DEFAULT);
+    $user->birth = date('Y-m-d');
+    $user->register = date('Y-m-d H:i:s');
+    $user->address = new Model\Address();
 
-    /* Insert entity in database */
-    $entity->persist();
+    // If the related entity has no value in its primary key, the entity is inserted, otherwise the set key is used
+    // $user->address->id = 1;
+    $user->address->code = '00000000';
+    $user->address->estate = 'SP';
+    $user->address->city = 'Diadema';
+    $user->address->district = 'Inamar';
+    $user->address->address = 'Rua Canopo';
+    $user->address->number = 0;
 
-}catch(DatamanagerException $er){
+    $user->persist();
 
-    die("Code Error: {$er->getCode()}, Line: {$er->getLine()}, File: {$er->getFile()}, Message: {$er->getMessage()}.");
+}catch(HnrAzevedo\ORM\ORMException $e){
+
+    die($e->getMessage());
 
 }

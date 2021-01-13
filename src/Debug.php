@@ -14,14 +14,14 @@ class Debug
     {
         if($array){
             return [
-                'query' => $this->lastQuery, 
-                'data' => $this->lastData
+                'query' => $this->query, 
+                'data' => $this->data
             ];
         }
         
-        $query = $this->lastQuery;
+        $query = $this->query;
 
-        foreach($this->lastData as $name => $value){
+        foreach($this->data as $name => $value){
             $query = str_replace(":{$name}", "'{$value}'", $query);
         }
 

@@ -14,7 +14,6 @@ try{
     $user->register = date('Y-m-d H:i:s');
     $user->address = new Model\Address();
 
-    // If the related entity has no value in its primary key, the entity is inserted, otherwise the set key is used
     // $user->address->id = 1;
     $user->address->code = '00000000';
     $user->address->estate = 'SP';

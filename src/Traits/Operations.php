@@ -2,24 +2,30 @@
 
 namespace HnrAzevedo\ORM\Traits;
 
+use HnrAzevedo\ORM\CRUD;
+use HnrAzevedo\ORM\ORMException;
+
 trait Operations
 {
-    public function find(?int $key = null): self
-    {
-        return $this;
-    }
+    protected array $select = [];
+    protected array $changed = [];
+    protected array $terms = [];
+    protected int $limit = 0;
+    protected CRUD $manager;
 
     public function findById(int $key): self
     {
-        return $this;
+        $this->limit = 1;
+        $key = $this->manager->select(columns: $this->select, table: $this->entity->getTable(), terms: $this->terms);
+        $primaryKey = $this->entity->getPrimaryKey()->getName();
+
+
+        var_dump($this->manager->debug());
+        die();
+        $this->$primaryKey = ($key);
     }
 
-    public function delete(?int $key = null): self
-    {
-        return $this;
-    }
-
-    public function deleteById(int $key): self
+    public function removeById(int $key): self
     {
         return $this;
     }

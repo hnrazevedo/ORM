@@ -4,25 +4,43 @@ namespace HnrAzevedo\ORM\Traits;
 
 use HnrAzevedo\ORM\ORMException;
 use HnrAzevedo\ORM\Prepare;
-use HnrAzevedo\ORM\Validation;
 use HnrAzevedo\ORM\CRUD;
 
 trait Encapsulation
 {
+    use Operations;
+    private bool $work = false;
+    private string 
+
+    public function handle(): void
+    {
+        echo 1;
+    }
+
     public function persist(): self
     {
-        $manager = new CRUD();
-        $manager->transaction('begin');
+        $this->manager->transaction('begin');
         try{
-            $key = $manager->insert((new Prepare($this))->save(), $this->entity->getTable());
+            $key = $this->manager->insert((new Prepare($this))->save(), $this->entity->getTable());
             $primaryKey = $this->entity->getPrimaryKey()->getName();
             $this->$primaryKey = ($key);
-            $manager->transaction('commit');
+            $this->manager->transaction('commit');
         }catch(ORMException $er){
-            $manager->transaction('rollback');
+            $this->manager->transaction('rollback');
             throw $er;
         }
         return $this;
+    }
+
+    public function find(?int $key = null): array
+    {
+        try{
+            return (null !== $key) 
+                ? $this->findById($key)
+                : $this->manager->select(columns: $this->select, table: $this->entity->getTable(), terms: $this->terms);
+        }catch(ORMException $er){
+            throw $er;
+        }
     }
 
     public function remove(bool $exec = false): self

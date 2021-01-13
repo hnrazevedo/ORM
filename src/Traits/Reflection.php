@@ -47,6 +47,8 @@ trait Reflection
                         : $attr
                 );
 
+                $this->select[$property->getName()] = true;
+
             }
          }
     }

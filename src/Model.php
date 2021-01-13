@@ -11,6 +11,7 @@ class Model extends ORM
     public function __construct()
     {
         $this->interpret();
+        $this->manager = new CRUD();
     }
 
     public function __set(string $field, $value)

@@ -2,16 +2,10 @@
 
 namespace HnrAzevedo\ORM;
 
-use HnrAzevedo\ORM\Traits\Checking;
-use PDO;
-
 class CRUD
 {
-    use Checking;
-
-    protected ?ORMException $fail = null;
-    protected string $lastQuery = '';
-    protected array $lastData = [];
+    private string $query;
+    private array $data;
 
     public function transaction(string $t): bool
     {
@@ -44,84 +38,83 @@ class CRUD
         }
     }
 
-    public function select(string $query, array $data): ?array
+    public function select(array $columns, string $table, array $terms, ?int $limit = null, ?int $offset = null, string $orderBy = ''): array|Object
     {
         try{
-            $stmt = Connection::getInstance()->prepare("{$query}");
+            $columns = implode(", ", array_keys($columns));
 
-            $this->lastQuery = "{$query}";
-            $this->lastData = $data;
+            $termed = $this->getTerms($terms);
+            $limited = $this->getLimit($limit);
+            $offseted = $this->getOffset($offset);
 
-            $stmt->execute($data);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }catch(\Exception $exception){
-            $this->fail = new ORMException($exception->getMessage(), $exception->getCode(), $exception);
+            $this->query = "SELECT {$columns} FROM {$table} WHERE 1 = 1 {$termed} {$limited} {$offseted} {$orderBy}";
+            $this->data = $terms;
+
+            $stmt = Connection::getInstance()->prepare($this->query);
+            $stmt->execute($terms);
+
+            return $stmt->fetchAll();
+        }catch(\Exception $e){
+            throw new ORMException($e->getMessage(), $e->getCode(), $e);
         }
-        return [];
     }
 
-    
-
-    public function update(array $data, string $terms, string $params): bool
+    public function update(array $data, array $terms, string $table): bool
     {
         try {
-            $dateSet = [];
-            foreach ($data as $bind => $value) {
-                $dateSet[] = "{$bind} = :{$bind}";
+            $dataSet = [];
+            foreach ($data as $column => $value) {
+                $dataSet[] = "{$column} = :{$column}";
             }
-            $dateSet = implode(", ", $dateSet);
 
-            parse_str($params, $arr);
+            $this->query = "UPDATE {$table} SET ({$dataSet}) WHERE 1 = 1 {$terms}";
+            $this->data = $data;
 
-            //$dataUpdate = $this->filter(array_merge($data, $arr));
-
-            $stmt = Connection::getInstance()->prepare("UPDATE {$this->table} SET {$dateSet} WHERE {$terms}");
-
-            $this->lastQuery = "UPDATE {$this->table} SET {$dateSet} WHERE {$terms}";
-            $this->lastData = $dataUpdate;
-
-            $this->checkNull($data);
-            $stmt->execute($dataUpdate);
+            $stmt = Connection::getInstance()->prepare($this->query);
+            $stmt->execute($this->data);
 
             return ($stmt->rowCount() !== 0);
-        } catch (\Exception $exception) {
-            $this->fail = new ORMException($exception->getMessage(), $exception->getCode(), $exception);
+        } catch (\Exception $e) {
+            throw new ORMException($e->getMessage(), $e->getCode(), $e);
         }
-
-        return true;
     }
 
-    public function delete(string $terms, ?string $params): bool
+    public function delete(string $terms, ?array $params = null): bool
     {
         try {
-            $stmt = Connection::getInstance()->prepare("DELETE FROM {$this->table} WHERE {$terms}");
+            $this->query = "DELETE FROM {$this->table} WHERE 1 = 1 {$terms}";
+            $this->data = [];
 
-            $this->lastQuery = "DELETE FROM {$this->table} WHERE {$terms}";
-            $this->lastData = [];
-
-            if($params){
-                parse_str($params, $arr);
-                $this->lastData = $arr;
-
-                $stmt->execute($arr);
-                return ($stmt->rowCount() !== 0);
-            }
-
-            $stmt->execute();
+            $stmt = Connection::getInstance()->prepare($this->query);
+            $stmt->execute($params);
+        
             return ($stmt->rowCount() !== 0);
-
-        } catch (\Exception $exception) {
-            $this->fail = new ORMException($exception->getMessage(), $exception->getCode(), $exception);
+        } catch (\Exception $e) {
+            throw new ORMException($e->getMessage(), $e->getCode(), $e);
         }
-
-        return false;
     }
 
-    public function failed(): void
+    private function getTerms(array $terms): string
     {
-        if(!is_null($this->fail)){
-            throw $this->fail;
+        foreach ($terms as $condition => $term) {
+            var_dump($term);
         }
+        return '';
+    }
+
+    private function getLimit(?int $limit = null): string
+    {
+        return (null !== $limit) ? " LIMIT {$limit}" : '';
+    }
+
+    private function getOffset(?int $offset = null): string
+    {
+        return (null !== $offset) ? " OFFSET {$offset}" : '';
+    }
+
+    public function debug(bool $array = false): array|string
+    {
+        return (new  Debug(query: $this->query, data: $this->data))->handle($array);
     }
 
 }
